@@ -88,7 +88,7 @@ const AddUserModule = () => {
   };
 
   return (
-    <div className="addUser">
+    <div className="addUserModule">
       <form onSubmit={handleSearch}>
         <input type="text" placeholder="Username" name="username" />
         <button>Search</button>

@@ -1,5 +1,5 @@
 import { useUserStore } from "../../lib/userStore";
-import AddUser from "../addUserModule/AddUserModule";
+import AddUserModule from "../addUserModule/AddUserModule";
 import "./chatList.css";
 import { useEffect, useState } from "react";
 import { doc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
@@ -113,7 +113,7 @@ const ChatList = () => {
         </div>
       ))}
 
-      {addMode && <AddUser />}
+      {addMode && <AddUserModule />}
     </div>
   );
 };
