@@ -1,7 +1,7 @@
 import { useUserStore } from "../../lib/userStore";
 import AddUserModule from "../addUserModule/AddUserModule";
 import "./chatList.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { doc, onSnapshot, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { useChatStore } from "../../lib/chatStore";
@@ -12,6 +12,8 @@ const ChatList = () => {
   const [input, setInput] = useState("");
   const { currentUser } = useUserStore();
   const { chatId, changeChat } = useChatStore();
+
+  const addUserRef = useRef(null);
 
   useEffect(() => {
     const unSub = onSnapshot(
@@ -67,6 +69,22 @@ const ChatList = () => {
     c.user.username.toLowerCase().includes(input.toLowerCase())
   );
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (addUserRef.current && !addUserRef.current.contains(event.target)) {
+        setAddMode(false); // Close the AddUserModule
+      }
+    };
+
+    if (addMode) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [addMode]);
+
   return (
     <div className="chatList">
       <div className="search">
@@ -113,7 +131,11 @@ const ChatList = () => {
         </div>
       ))}
 
-      {addMode && <AddUserModule />}
+      {addMode && (
+        <div ref={addUserRef}>
+          <AddUserModule />
+        </div>
+      )}
     </div>
   );
 };
