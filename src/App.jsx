@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import MainChat from "./components/mainChat/mainChat";
 import ChatDetail from "./components/chatDetail/ChatDetail";
 import ChatInfo from "./components/chatInfo/ChatInfo";
@@ -12,6 +12,7 @@ import { useChatStore } from "./lib/chatStore";
 const App = () => {
   const { currentUser, isLoading, fetchUserInfo } = useUserStore();
   const { chatId } = useChatStore();
+  const [isChatDetailOpen, setIsChatDetailOpen] = useState(false);
 
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, (user) => {
@@ -23,16 +24,23 @@ const App = () => {
     };
   }, [fetchUserInfo]);
 
-  console.log(currentUser);
-
   if (isLoading) return <div className="loading">Loading...</div>;
+
+  const toggleChatDetail = () => {
+    setIsChatDetailOpen((prev) => !prev);
+  };
+
   return (
     <div className="container">
       {currentUser ? (
         <>
           <ChatInfo />
-          {chatId && <MainChat />}
-          {chatId && <ChatDetail />}
+          {chatId && (
+            <>
+              <MainChat toggleChatDetail={toggleChatDetail} />
+              {isChatDetailOpen && <ChatDetail />}
+            </>
+          )}
         </>
       ) : (
         <LoginRegister />
