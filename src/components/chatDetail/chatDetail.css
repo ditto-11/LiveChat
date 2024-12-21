@@ -1,5 +1,6 @@
 .chatDetail {
   flex: 1;
+  overflow: scroll;
 
   .user {
     padding: 30px 20px;
@@ -119,4 +120,8 @@
       }
     }
   }
+}
+
+.chatDetail::-webkit-scrollbar {
+  display: none;
 }

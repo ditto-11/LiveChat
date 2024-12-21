@@ -58,11 +58,18 @@ const MainChat = ({ toggleChatDetail }) => {
   };
 
   const handleSend = async () => {
-    if (text === "") return;
+    if (text === "" && !img.file) return;
 
     let imgUrl = null;
 
     try {
+      const chatDocRef = doc(db, "chats", chatId);
+      const chatDoc = await getDoc(chatDocRef);
+
+      if (!chatDoc.exists()) {
+        await setDoc(chatDocRef, { messages: [], sharedPhotos: [] });
+      }
+
       if (img.file) {
         imgUrl = await upload(img.file);
       }
@@ -75,6 +82,12 @@ const MainChat = ({ toggleChatDetail }) => {
           ...(imgUrl && { img: imgUrl }),
         }),
       });
+
+      if (imgUrl) {
+        await updateDoc(chatDocRef, {
+          sharedPhotos: arrayUnion(imgUrl),
+        });
+      }
 
       const userIDs = [currentUser.id, user.id];
 

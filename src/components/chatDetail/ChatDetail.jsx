@@ -1,13 +1,22 @@
 import "./chatDetail.css";
 import { auth, db } from "../../lib/firebase";
 import { useUserStore } from "../../lib/userStore";
-import { updateDoc, doc, arrayRemove, arrayUnion } from "firebase/firestore";
+import {
+  updateDoc,
+  doc,
+  arrayRemove,
+  arrayUnion,
+  getDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { useChatStore } from "../../lib/chatStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const ChatDetail = () => {
   const [settingOpen, setSettingOpen] = useState(false);
+  const [photoOpen, setPhotoOpen] = useState(false);
   const [chatTheme, setChatTheme] = useState("blue");
+  const [sharedPhotos, setSharedPhotos] = useState([]);
 
   const {
     chatId,
@@ -19,6 +28,22 @@ const ChatDetail = () => {
   } = useChatStore();
 
   const { currentUser } = useUserStore();
+
+  useEffect(() => {
+    if (!chatId) return;
+
+    const chatDocRef = doc(db, "chats", chatId);
+
+    const unsubscribe = onSnapshot(chatDocRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const chatData = snapshot.data();
+        setSharedPhotos(chatData.sharedPhotos || []);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [chatId]);
+
   const handleBlock = async () => {
     if (!user) return;
 
@@ -77,22 +102,23 @@ const ChatDetail = () => {
           )}
         </div>
         <div className="option">
-          <div className="title">
+          <div className="title" onClick={() => setPhotoOpen(!photoOpen)}>
             <span>Shared Photo</span>
-            <img src="./arrowUp.png" alt="" />
+            <img src={photoOpen ? "./arrowUp.png" : "./arrowDown.png"} alt="" />
           </div>
-          <div className="photos">
-            {/* <div className="photoItem">
-              <div className="photoDetail">
-                <img
-                  src="https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg"
-                  alt=""
-                />
-                <span>photo_2024_2.png</span>
-              </div>
-              <img src="./download.png" alt="" className="icon" />
-            </div> */}
-          </div>
+          {photoOpen && (
+            <div className="photos">
+              {sharedPhotos.map((photo, index) => (
+                <div className="photoItem" key={index}>
+                  <div className="photoDetail">
+                    <img src={photo} alt={`Shared Photo ${index + 1}`} />
+                    <span>{`photo_${index + 1}.png`}</span>
+                  </div>
+                  <img src="./download.png" alt="Download" className="icon" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <button onClick={handleBlock}>
           {isCurrentUserBlocked

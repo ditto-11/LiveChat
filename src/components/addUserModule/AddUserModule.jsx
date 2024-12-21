@@ -64,6 +64,7 @@ const AddUserModule = () => {
       await setDoc(newChatRef, {
         createdAt: serverTimestamp(),
         messages: [],
+        sharedPhotos: [],
       });
 
       await updateDoc(currentUserChatsRef, {
